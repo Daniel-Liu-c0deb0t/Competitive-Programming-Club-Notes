@@ -1,0 +1,96 @@
+\documentclass{article}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{Introduction to Recursion}
+\author{Daniel Liu}
+
+\begin{document}
+    \maketitle
+
+    \section{What is recursion?}
+    Recursion is basically a function calling itself. It is best illustrated through an example:
+
+    \begin{algorithm}
+        \caption{Iterative Fibonnaci}
+        \begin{algorithmic}[1]
+            \Function{F}{$n$}
+                \State $f_1 \gets 1$
+                \State $f_2 \gets 1$
+                \For{$i \in \{3 \ldots n\}$}
+                    \State $f_i \gets f_{i - 1} + f_{i - 2}$
+                \EndFor
+                \State \Return{$f_n$}
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}
+        \caption{Recursive Fibonnaci}
+        \begin{algorithmic}[1]
+            \Function{F}{$n$}
+                \If{$n = 1$}
+                    \State \Return $n$
+                \Else
+                    \State \Return $\Call{F}{n - 1} + \Call{F}{n - 2}$
+                \EndIf
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    The iterative variant calculates from the first two Fibonacci numbers, building up to the $n$th Fibonacci number. This is commonly known as the bottom-up approach. The recursive version defines the result using function calls, which can be thought of as placeholders for values. For many problems, using a recursive approach to reason about it can be beneficial---you can think of it as "asking" for a value that have not been calculated yet.
+
+    Now, we obviously cannot get values out of thin air. Each recursive function call defers the computation, layering the function calls until the base state is reached. Then, one by one, the functions start returning their results, going up the stack of layers until the first function call is reached. As we start our function calls from the top, or in this case, from the original $n$, this is called the top-down approach. Note that our recursive Fibonacci implementation is \textit{very} slow; we do two recursive calls every layer of the function call chain, leading to exponential growth in the total number of function calls! Without any optimizations, plain recursion is usually quite slow.
+
+    The main idea behind recursion is the transfer between states, where each state is \textit{uniquely} represented through a recursive function's parameter(s). For our Fibonacci number example, each state can just be represented by the index $n$. For harder problems, the state can be much more complex.
+
+    \section{A Very Recursive Problem}
+    Alice recently got a $n$ (let's say 20 for now) digit combination lock with a very peculiar property: only 1s and 0s are allowed as the lock combinations! Also, she only likes combinations with an odd number of 1s. Help her find out how many different combinations are possible!\footnote{Please use recursion, not math.}
+
+    This problem is fairly straightforward in terms of recursion---just go through each digit and choose either 1 or 0. At the very end, we check the $n$ digit sequence to see if it has an odd number of 1s. Each state can be represented with an array and an index representing where we are in the array. For every step of the recursion, we advance the index and try adding both 1 and 0 to the array at the index.
+
+    \begin{algorithm}
+        \caption{Recursively generating combinations}
+        \begin{algorithmic}[1]
+            \State $r \gets 0$
+            \State $n \gets 20$
+            \Function{Generate}{$a, i$}
+                \If{$i = n$}
+                    \If{$a$ has an odd number of 1s}
+                        \State $r \gets r + 1$
+                    \EndIf
+                \Else
+                    \State \Call{Generate}{$a + [0], i + 1$}
+                    \State \Call{Generate}{$a + [1], i + 1$}
+                \EndIf
+            \EndFunction
+            \State \Call{Generate}{$[], 0$}
+        \end{algorithmic}
+    \end{algorithm}
+
+    With an iterative implementation, $n$ (in this case, 20) layers of for loops are required, which is quite a lot of code.
+
+    Since we branch into two different paths every single recursive call, and the maximum recursion depth is $n$, the time complexity should be some multiple of $O(2^n)$. As we have to go through each combination to check if it has an odd number of 1s, the final complexity is $O(n2^n)$.
+
+    \section{Analyzing Recursion: Merge Sort}
+    Merge sort is a recursive searching algorithm that runs in $O(n\log n)$ time for an array of length $n$. It is important to note that merge sort uses the divide and conquer paradigm, and it does not run in exponential time, unlike many pure recursive algorithms.
+
+    \begin{algorithm}
+        \caption{Recursive merge sort}
+        \begin{algorithmic}[1]
+            \Function{MergeSort}{$a$}
+                \If{$|a| = 1$}
+                    \State \Return $a$
+                \Else
+                    \State $l \gets \Call{MergeSort}{a_{0, \ldots{}, \frac{|a|}{2} - 1}}$
+                    \State $r \gets \Call{MergeSort}{a_{\frac{|a|}{2}, \ldots{}, |a| - 1}}$
+                    \State $a \gets$ Merge $l$ and $r$ in $O(|l| + |r|)$ time, sorted.
+                    \State \Return $a$
+                \EndIf
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    Why is the time complexity $O(n\log n)$? Let's first estimate the recursion depth. Since we split the array up every single recursive function call, the recursion depth is $O(\log n)$. When merging two sorted subarrays into a larger sorted array, the time required is linear to the total number of elements in both arrays. If we group all recursive function calls with the same depth into a single layer, then the time complexity per layer is $O(n)$. Since we have $O(\log n)$ layers, the total time complexity is $O(n\log n)$.
+\end{document}
