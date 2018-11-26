@@ -1,0 +1,54 @@
+\documentclass{article}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{BFS, DFS, and Flood Fill}
+\author{Daniel Liu}
+
+\begin{document}
+    \maketitle
+
+    \section{BFS and DFS}
+    DFS stands for depth-first search, and bfs stands for breadth-first search. As their name suggests, they are different searching algorithms that solve problems by searching for the answer instead of just directly calculating it. We will mainly examine an intuitive subset of these searching problems, which involves traversing a rectangular grid of square cells. A very natural query on a grid is finding a path between a starting cell and an ending cell by only moving up, down, left, or right from one cell to the next. For an empty grid, there are many such paths, and it is fairly simple to come up with one. As such, we will increase the difficulty with a few cells that are blocked. These cells cannot be accessed in our path from the starting cell to the ending cell.
+
+    This type of problem maps very nicely onto some sort of recursive function---our state is uniquely determined by the row and column of our current cell, and we can reach another state (cell) by going up, down, left, or right. This leads directly to the DFS algorithm. Note that we have to be careful to stop a recursive call early if the current cell is blocked.
+
+    \begin{algorithm}
+        \caption{DFS on grid}
+        \begin{algorithmic}[1]
+            \State $start \gets$ starting row and column
+            \State $end \gets$ ending row and column
+            \State $g_{r, c} \gets 1 \textrm{ if } g_{r, c} \textrm{ is blocked, else } 0$
+            \State $v_{r, c} \gets 0$
+            \State $res \gets $ ?
+            \Function{dfs}{$r, c, path$}
+                \If{($(r, c)$ out of bounds) or ($g_{r, c} = 1$) or ($v_{r, c} = 1$)}
+                    \State \Return
+                \EndIf
+                \State $v_{r, c} \gets 1$
+                \If{$(r, c) = end$}
+                    \State $res \gets path$
+                    \State \Return
+                \EndIf
+                \For{$(a, b) \in \{(0, 1), (0, -1), (1, 0), (-1, 0)\}$}
+                    \State \Call{$dfs$}{$r + a, c + b, path + [(r + a, c + b)]$}
+                \EndFor
+            \EndFunction
+            \State \Call{$dfs$}{$start_r, start_c, [(start)]$}
+        \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}
+        \caption{BFS on grid}
+        \begin{algorithmic}[1]
+            \Function{bfs}{$start, end$}
+                \State $q = []$
+                \State $v_{r, c} = 0$
+                \State $p_{r, c} = $ ?
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    TODO: flood fill pseudocode, finish BFS, 2 types of ways to save paths, BFS shortest path property, visited array
+\end{document}
