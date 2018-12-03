@@ -12,9 +12,9 @@
     \section{BFS and DFS}
     DFS stands for depth-first search, and bfs stands for breadth-first search. As their name suggests, they are different searching algorithms that solve problems by searching for the answer instead of just directly calculating it. We will mainly examine an intuitive subset of these searching problems, which involves traversing a rectangular grid of square cells. A very natural query on a grid is finding a path between a starting cell and an ending cell by only moving up, down, left, or right from one cell to the next. For an empty grid, there are many such paths, and it is fairly simple to come up with one. As such, we will increase the difficulty with a few cells that are blocked. These cells cannot be accessed in our path from the starting cell to the ending cell.
 
-    This type of problem maps very nicely onto some sort of recursive function---our state is uniquely determined by the row and column of our current cell, and we can reach another state (cell) by going up, down, left, or right. This leads directly to the DFS algorithm. Note that we have to be careful to stop a recursive call early if the current cell is blocked.
+    This type of problem maps very nicely onto some sort of recursive function---our state is uniquely determined by the row and column of our current cell, and we can reach another state (cell) by going up, down, left, or right. This leads directly to the DFS algorithm. Note that we have to be careful to stop a recursive call early if the current cell is blocked or if we already visited that cell.
 
-    \begin{algorithm}
+    \begin{algorithm}[H]
         \caption{DFS on grid}
         \begin{algorithmic}[1]
             \State $start \gets$ starting row and column
@@ -32,23 +32,47 @@
                     \State \Return
                 \EndIf
                 \For{$(a, b) \in \{(0, 1), (0, -1), (1, 0), (-1, 0)\}$}
-                    \State \Call{$dfs$}{$r + a, c + b, path + [(r + a, c + b)]$}
+                    \State \Call{dfs}{$r + a, c + b, path + [(r + a, c + b)]$}
                 \EndFor
             \EndFunction
-            \State \Call{$dfs$}{$start_r, start_c, [(start)]$}
+            \State \Call{dfs}{$start_r, start_c, [start]$}
+            \State $res$ contains a path from $start$ to $end$
         \end{algorithmic}
     \end{algorithm}
 
-    \begin{algorithm}
+    BFS uses an iterative method to go through empty cells in the grid. Each iteration, it expands a queue by choosing a cell in the queue and adding its neighbors that are not in the queue to the queue. This allows BFS handles cells in a "first come first serve" manner, as the queue returning earlier cells before later cells. Also, BFS has the neat property of always picking one of the many possible paths of minimum distance from the starting cell to the ending cell.
+
+    \begin{algorithm}[H]
         \caption{BFS on grid}
         \begin{algorithmic}[1]
-            \Function{bfs}{$start, end$}
-                \State $q = []$
-                \State $v_{r, c} = 0$
-                \State $p_{r, c} = $ ?
+            \Function{bfs}{$g, start, end$}
+                \State $q \gets []$
+                \State $vis_{r, c} \gets 0$
+                \State $p_{r, c} \gets $ ?
+                \State add $start$ to $q$
+                \State $vis_{start} \gets 1$
+                \While{$q$ is not empty}
+                    \State $u \gets$ next in $q$
+                    \If{$u = end$}
+                        \State break out of while loop
+                    \EndIf
+                    \For{$v \in \{(0, 1), (0, -1), (1, 0), (-1, 0)\}$}
+                        \If{($v$ not out of bounds) and ($vis_v = 0$) and ($g_v = 0$)}
+                            \State $vis_v \gets 1$
+                            \State $p_v = u$
+                            \State add $v$ to $q$
+                        \EndIf
+                    \EndFor
+                \EndWhile
+                \State \Return the path by following the values in $p$, starting from $p_{end}$, and ending at $p_{start}$
             \EndFunction
         \end{algorithmic}
     \end{algorithm}
 
-    TODO: flood fill pseudocode, finish BFS, 2 types of ways to save paths, BFS shortest path property, visited array
+    In the DFS example, the path is tracked through a list of cells visited in order. However, for BFS, we keep track of the previous cell for each current cell, and that allows us to get back trace the path in reverse at the end.
+
+    \section{Flood Fill}
+    One very useful application of DFS and BFS is finding connected "islands". For example, a certain area of the grid might be completely cut off from the outside by blocked cells. To find out the cells inside or outside the blocked region, we can run either DFS or BFS starting from a certain cell, and checking which cells are visited after the algorithm terminates.
+
+    What if there are multiple blocked regions? Then we can assign a "color" (a number would be more practical) to each cell. The assignment of colors must satisfy the following property: if it is possible to travel from one cell to another, then those two cells must have the same color. To figure out the colors for each cell, we can run flood fill starting from every single cell and skipping the ones that are already colored. Each time we color in a new region, we can use a different number to distinguish them. By doing this, we can easily figure out whether two cells are connected by some path in $O(1)$ time.
 \end{document}
